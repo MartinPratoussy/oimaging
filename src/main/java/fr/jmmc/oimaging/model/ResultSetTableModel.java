@@ -24,10 +24,10 @@ public class ResultSetTableModel extends AbstractTableModel {
     public final static int INDEX = 0, FILE = 1, TARGET = 2, TIMESTAMP_RECONSTRUCTION = 3, WAVELENGTH = 4, ALGORITHM = 5, RGL_WGT = 6, SUCCESS = 7, RATING = 8, COMMENTS = 9;
     private static final String[] COLUMNS_NAMES = {"Index", "Name", "Target", "Timestamp reconstruction", "Wavelength", "Algorithm", "RGL_WGT", "Success", "Rating", "Comment"};
 
-    private class Row {
+    private static class Row {
         public ServiceResult result;
         public int rating = 5;
-        public String comments = null;
+        public String comments = "No comments";
         
         public Row(ServiceResult result) {
             this.result = result;
@@ -41,7 +41,6 @@ public class ResultSetTableModel extends AbstractTableModel {
     }
 
     public void addResult(List<ServiceResult> results) {
-        rows.clear();
         results.forEach(result -> {
             rows.add(new Row(result));
         });
@@ -89,7 +88,7 @@ public class ResultSetTableModel extends AbstractTableModel {
                 rows.get(rowIndex).comments = (String) value;
         }
     }
-    
+
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
 
@@ -121,7 +120,18 @@ public class ResultSetTableModel extends AbstractTableModel {
             break;
 
             case ALGORITHM:
-                return result.getService().getProgram();
+                switch (result.getService().getProgram()) {
+                    case "sparco-ci":
+                        return "SPARCO";
+                    case "mira-ci":
+                        return "MIRA";
+                    case "bsmem-ci":
+                        return "BSMEM";
+                    case "wisard-ci":
+                        return "WISARD";
+                    default:
+                        return "No program found";
+                }
 
             case RGL_WGT:
                 try {
