@@ -34,6 +34,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -171,6 +173,7 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
         jTablePanel.addControlComponent(jButtonCompare);
         jTablePanel.addControlComponent(jButtonDelete);
         jTablePanel.addControlComponent(jSliderResults);
+        jTablePanel.addControlComponent(jButtonSaveIRModel);
 
         jSplitPane.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, new PropertyChangeListener() {
 
@@ -289,6 +292,7 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
 
         jButtonCompare = new javax.swing.JButton();
         jButtonDelete = new javax.swing.JButton();
+        jButtonSaveIRModel = new javax.swing.JButton();
         jSplitPaneGlobal = new javax.swing.JSplitPane();
         jSplitPane = new javax.swing.JSplitPane();
         viewerPanel = new fr.jmmc.oimaging.gui.ViewerPanel();
@@ -342,6 +346,13 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
         jSliderResults.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 jSliderResultsStateChanged(evt);
+            }
+        });
+        
+        jButtonSaveIRModel.setText("Save IR model");
+        jButtonSaveIRModel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSaveIRModelActionPerformed(evt);
             }
         });
 
@@ -629,6 +640,17 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
             viewerPanel.displayResult(resultSetList.get(index));
             jTablePanel.getTable().setRowSelectionInterval(index, index);
         }
+    }// </editor-fold>//GEN-END:
+
+    private void jButtonSaveIRModelActionPerformed(ActionEvent evt) {
+        try {
+            File irmodelFile = new File("irmodel");
+            if (irmodelFile.createNewFile()) {
+                IRModelManager.getInstance().saveIRModel(irmodelFile);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void jCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxActionPerformed
@@ -714,6 +736,7 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonCompare;
     private javax.swing.JButton jButtonDelete;
+    private javax.swing.JButton jButtonSaveIRModel;
     private javax.swing.JButton jButtonExportImage;
     private javax.swing.JButton jButtonExportOIFits;
     private javax.swing.JButton jButtonLoadData;
