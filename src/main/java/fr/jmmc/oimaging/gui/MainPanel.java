@@ -12,20 +12,18 @@ import fr.jmmc.jmcs.gui.task.TaskSwingWorkerExecutor;
 import fr.jmmc.jmcs.gui.util.FieldSliderAdapter;
 import fr.jmmc.jmcs.util.ObjectUtils;
 import fr.jmmc.jmcs.util.SpecialChars;
+import fr.jmmc.oiexplorer.core.model.LoadOIFitsListener;
 import fr.jmmc.oimaging.gui.action.DeleteSelectionAction;
 import fr.jmmc.oimaging.gui.action.ExportFitsImageAction;
 import fr.jmmc.oimaging.gui.action.ExportOIFitsAction;
 import fr.jmmc.oimaging.gui.action.LoadOIFitsAction;
 import fr.jmmc.oimaging.gui.action.RunAction;
-import fr.jmmc.oimaging.model.IRModel;
-import fr.jmmc.oimaging.model.IRModelEvent;
-import fr.jmmc.oimaging.model.IRModelEventListener;
-import fr.jmmc.oimaging.model.IRModelEventType;
-import fr.jmmc.oimaging.model.IRModelManager;
+import fr.jmmc.oimaging.model.*;
 import fr.jmmc.oimaging.services.ServiceResult;
 import fr.jmmc.oitools.image.FitsUnit;
 import fr.jmmc.oitools.image.ImageOiConstants;
 import fr.jmmc.oitools.image.ImageOiInputParam;
+import fr.jmmc.oitools.model.OIFitsChecker;
 import fr.jmmc.oitools.model.OIFitsFile;
 import fr.jmmc.oitools.model.range.Range;
 import java.awt.Cursor;
@@ -174,6 +172,7 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
         jTablePanel.addControlComponent(jButtonDelete);
         jTablePanel.addControlComponent(jSliderResults);
         jTablePanel.addControlComponent(jButtonSaveIRModel);
+        jTablePanel.addControlComponent(jButtonLoadIRmodel);
 
         jSplitPane.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, new PropertyChangeListener() {
 
@@ -293,6 +292,7 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
         jButtonCompare = new javax.swing.JButton();
         jButtonDelete = new javax.swing.JButton();
         jButtonSaveIRModel = new javax.swing.JButton();
+        jButtonLoadIRmodel = new javax.swing.JButton();
         jSplitPaneGlobal = new javax.swing.JSplitPane();
         jSplitPane = new javax.swing.JSplitPane();
         viewerPanel = new fr.jmmc.oimaging.gui.ViewerPanel();
@@ -353,6 +353,13 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
         jButtonSaveIRModel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonSaveIRModelActionPerformed(evt);
+            }
+        });
+
+        jButtonLoadIRmodel.setText("Load IR model");
+        jButtonLoadIRmodel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonLoadIRmodelActionPerformed(evt);
             }
         });
 
@@ -641,12 +648,35 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
             jTablePanel.getTable().setRowSelectionInterval(index, index);
         }
     }// </editor-fold>//GEN-END:
+    
+    private void jButtonLoadIRmodelActionPerformed(ActionEvent evt) {
+        try {
+            File irmodelFile = new File("irmodel");
+            if (irmodelFile.exists()) {
+
+                OIFitsChecker checker = new OIFitsChecker();
+
+                LoadIRModelListener listener = new LoadIRModelListener() {
+                    @Override
+                    public void done(boolean cancelled) {}
+                    @Override
+                    public void propertyChange(PropertyChangeEvent propertyChangeEvent) {}
+                };
+
+                IRModelManager.getInstance().loadIRModel(irmodelFile, null, listener);
+                updateModel();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void jButtonSaveIRModelActionPerformed(ActionEvent evt) {
         try {
             File irmodelFile = new File("irmodel");
             if (irmodelFile.createNewFile()) {
                 IRModelManager.getInstance().saveIRModel(irmodelFile);
+                System.out.println(irmodelFile.getTotalSpace());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -737,6 +767,7 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
     private javax.swing.JButton jButtonCompare;
     private javax.swing.JButton jButtonDelete;
     private javax.swing.JButton jButtonSaveIRModel;
+    private javax.swing.JButton jButtonLoadIRmodel;
     private javax.swing.JButton jButtonExportImage;
     private javax.swing.JButton jButtonExportOIFits;
     private javax.swing.JButton jButtonLoadData;

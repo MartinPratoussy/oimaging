@@ -118,7 +118,11 @@ public final class IRModelManager {
     public void loadIRModel(final File file, final OIFitsChecker checker,
                             final LoadIRModelListener listener, final boolean appendOIFitsFilesOnly) throws IOException, IllegalStateException, XmlBindException {
 
+        this.jf.createMarshaller();
+
         final IRModel loadedModel = (IRModel) JAXBUtils.loadObject(file.toURI().toURL(), this.jf);
+
+        this.irModel = loadedModel;
 
         // TODO
         // OIDataCollectionFileProcessor.onLoad(loadedUserCollection);
