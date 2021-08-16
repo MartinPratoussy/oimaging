@@ -674,6 +674,9 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
     private void jButtonSaveIRModelActionPerformed(ActionEvent evt) {
         try {
             File irmodelFile = new File("irmodel");
+            if (irmodelFile.exists()) {
+                irmodelFile.delete();
+            }
             if (irmodelFile.createNewFile()) {
                 IRModelManager.getInstance().saveIRModel(irmodelFile);
                 System.out.println(irmodelFile.getTotalSpace());
