@@ -4,6 +4,9 @@
 package fr.jmmc.oimaging.model;
 
 import fr.jmmc.oimaging.services.ServiceResult;
+import fr.jmmc.oitools.fits.FitsHeaderCard;
+import fr.nom.tam.fits.FitsException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;

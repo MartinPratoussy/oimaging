@@ -11,6 +11,7 @@ import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
+import fr.jmmc.oimaging.model.ResultSetTableModelBis;
 /**
  *
  * @author martin
@@ -20,7 +21,8 @@ public class TablePanel extends javax.swing.JPanel {
     /**
      * ResultSet table model
      */
-    private final ResultSetTableModel resultSetTableModel;
+
+    private final ResultSetTableModelBis resultSetTableModelBis;
     private final BasicTableSorter resultSetTableSorter;
 
     /**
@@ -29,11 +31,11 @@ public class TablePanel extends javax.swing.JPanel {
     public TablePanel() {
 
         // Build ResultsTable
-        resultSetTableModel = new ResultSetTableModel();
+        resultSetTableModelBis = new ResultSetTableModelBis();
 
         initComponents();
 
-        resultSetTableSorter = new BasicTableSorter(resultSetTableModel, jResultSetTable.getTableHeader());
+        resultSetTableSorter = new BasicTableSorter(resultSetTableModelBis, jResultSetTable.getTableHeader());
         jResultSetTable.setModel(resultSetTableSorter);
         SwingUtils.adjustRowHeight(jResultSetTable);
 
@@ -63,7 +65,7 @@ public class TablePanel extends javax.swing.JPanel {
 
         setLayout(new java.awt.BorderLayout());
 
-        jResultSetTable.setModel(resultSetTableModel);
+        jResultSetTable.setModel(resultSetTableModelBis);
         jScrollPane1.setViewportView(jResultSetTable);
 
         jSplitPane1.setRightComponent(jScrollPane1);
@@ -78,8 +80,8 @@ public class TablePanel extends javax.swing.JPanel {
         return this.jResultSetTable;
     }
 
-    public ResultSetTableModel getTableModel() {
-        return this.resultSetTableModel;
+    public ResultSetTableModelBis getTableModel() {
+        return this.resultSetTableModelBis;
     }
 
     public void addControlComponent(JComponent component) {
