@@ -5,22 +5,40 @@ package fr.jmmc.oimaging.model;
 
 import fr.jmmc.oimaging.services.ServiceResult;
 import fr.jmmc.oitools.fits.FitsHeaderCard;
+import fr.jmmc.oitools.fits.FitsTable;
+import fr.jmmc.oitools.image.ImageOiInputParam;
+import fr.jmmc.oitools.image.ImageOiOutputParam;
+import fr.jmmc.oitools.meta.ColumnMeta;
 import fr.nom.tam.fits.FitsException;
+import org.apache.commons.fileupload.util.Streams;
+
 import javax.swing.table.DefaultTableModel;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- *
  * @author martin
  */
 public class ResultSetTableModelBis extends DefaultTableModel {
 
-    private final List<List<FitsHeaderCard>> fitsHeadersCards = new ArrayList<List<FitsHeaderCard>>();
     private final List<ServiceResult> results = new ArrayList<>();
-    private List<String> headers = new ArrayList<>();
+
+    private final List<Object> outputHeaders = new ArrayList<>();
+    private final List<Object> inputHeaders = new ArrayList<>();
+
+    private ImageOiInputParam inputParam = new ImageOiInputParam();
+    private ImageOiOutputParam outputParam = new ImageOiOutputParam();
+
+    private final List<ImageOiInputParam> inputParams = new ArrayList<>();
+    private final List<ImageOiOutputParam> outputParams = new ArrayList<>();
+
+    private final List<Object> headers = new ArrayList<>();
+    private final List<FitsTable> params = new ArrayList<>();
+
+    private final List<Map<String, Object>> values = new ArrayList<>();
+
 
     public ResultSetTableModelBis() {
         super();
@@ -28,27 +46,42 @@ public class ResultSetTableModelBis extends DefaultTableModel {
 
     /**
      * Redesign entirely the result table with the new headers and the new values
+     *
      * @param results The result set
      */
     public void populate(List<ServiceResult> results) {
-        fitsHeadersCards.clear();
+
+        // Clear everything
+        inputHeaders.clear();
+        outputHeaders.clear();
+        headers.clear();
+        values.clear();
         this.results.clear();
+
+        // For each result in the results set, populate all the table values and headers
         this.results.addAll(results);
         this.results.forEach(result -> {
             try {
-                fitsHeadersCards.add(result.getOifitsFile().getImageOiData().getOutputParam().getHeaderCards());
+                Map<String, Object> inputKeywordsValue = result.getOifitsFile().getImageOiData().getInputParam().getKeywordsValue();
+                Map<String, Object> outputKeywordsValue = result.getOifitsFile().getImageOiData().getOutputParam().getKeywordsValue();
+
+                inputHeaders.addAll(inputKeywordsValue.keySet());
+                outputHeaders.addAll(outputKeywordsValue.keySet());
+
+                values.add(new HashMap<>());
+                values.get(values.size() - 1).putAll(inputKeywordsValue);
+                values.get(values.size() - 1).putAll(outputKeywordsValue);
+
+                List<Object> newHeaders = Stream.concat(inputHeaders.stream(), outputHeaders.stream()).distinct().collect(Collectors.toList());
+                List<Object> tempHeaders = new ArrayList<>(headers);
+
+                headers.clear();
+                headers.addAll(Stream.concat(tempHeaders.stream(), newHeaders.stream()).distinct().collect(Collectors.toList()));
+
             } catch (IOException | FitsException e) {
                 e.printStackTrace();
             }
         });
-
-        // Merge the results parameters into one list with all the parameters
-        headers = fitsHeadersCards
-                .stream()
-                .flatMap(List::stream)
-                .map(FitsHeaderCard::getKey)
-                .distinct()
-                .collect(Collectors.toList());
 
         setColumnCount(headers.size());
         setColumnIdentifiers(headers.toArray());
@@ -68,6 +101,7 @@ public class ResultSetTableModelBis extends DefaultTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        return fitsHeadersCards.get(rowIndex).get(columnIndex).getValue();
+        String header = getColumnName(columnIndex);
+        return values.get(rowIndex).get(header);
     }
 }
