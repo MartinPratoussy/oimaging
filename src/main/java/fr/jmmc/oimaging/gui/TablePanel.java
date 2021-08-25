@@ -21,9 +21,7 @@ public class TablePanel extends javax.swing.JPanel {
     /**
      * ResultSet table model
      */
-
     private final ResultSetTableModelBis resultSetTableModelBis;
-    private final BasicTableSorter resultSetTableSorter;
 
     /**
      * Creates new form TablePanel
@@ -35,7 +33,7 @@ public class TablePanel extends javax.swing.JPanel {
 
         initComponents();
 
-        resultSetTableSorter = new BasicTableSorter(resultSetTableModelBis, jResultSetTable.getTableHeader());
+        BasicTableSorter resultSetTableSorter = new BasicTableSorter(resultSetTableModelBis, jResultSetTable.getTableHeader());
         jResultSetTable.setModel(resultSetTableSorter);
         SwingUtils.adjustRowHeight(jResultSetTable);
 

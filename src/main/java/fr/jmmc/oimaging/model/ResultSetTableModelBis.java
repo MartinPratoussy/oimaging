@@ -23,19 +23,10 @@ import java.util.stream.Stream;
  */
 public class ResultSetTableModelBis extends DefaultTableModel {
 
-    private final List<ServiceResult> results = new ArrayList<>();
+    private final List<String> outputHeaders = new ArrayList<>();
+    private final List<String> inputHeaders = new ArrayList<>();
 
-    private final List<Object> outputHeaders = new ArrayList<>();
-    private final List<Object> inputHeaders = new ArrayList<>();
-
-    private ImageOiInputParam inputParam = new ImageOiInputParam();
-    private ImageOiOutputParam outputParam = new ImageOiOutputParam();
-
-    private final List<ImageOiInputParam> inputParams = new ArrayList<>();
-    private final List<ImageOiOutputParam> outputParams = new ArrayList<>();
-
-    private final List<Object> headers = new ArrayList<>();
-    private final List<FitsTable> params = new ArrayList<>();
+    private final List<String> headers = new ArrayList<>();
 
     private final List<Map<String, Object>> values = new ArrayList<>();
 
@@ -56,11 +47,9 @@ public class ResultSetTableModelBis extends DefaultTableModel {
         outputHeaders.clear();
         headers.clear();
         values.clear();
-        this.results.clear();
 
         // For each result in the results set, populate all the table values and headers
-        this.results.addAll(results);
-        this.results.forEach(result -> {
+        results.forEach(result -> {
             try {
                 Map<String, Object> inputKeywordsValue = result.getOifitsFile().getImageOiData().getInputParam().getKeywordsValue();
                 Map<String, Object> outputKeywordsValue = result.getOifitsFile().getImageOiData().getOutputParam().getKeywordsValue();
@@ -72,8 +61,8 @@ public class ResultSetTableModelBis extends DefaultTableModel {
                 values.get(values.size() - 1).putAll(inputKeywordsValue);
                 values.get(values.size() - 1).putAll(outputKeywordsValue);
 
-                List<Object> newHeaders = Stream.concat(inputHeaders.stream(), outputHeaders.stream()).distinct().collect(Collectors.toList());
-                List<Object> tempHeaders = new ArrayList<>(headers);
+                List<String> newHeaders = Stream.concat(inputHeaders.stream(), outputHeaders.stream()).distinct().collect(Collectors.toList());
+                List<String> tempHeaders = new ArrayList<>(headers);
 
                 headers.clear();
                 headers.addAll(Stream.concat(tempHeaders.stream(), newHeaders.stream()).distinct().collect(Collectors.toList()));
@@ -89,6 +78,10 @@ public class ResultSetTableModelBis extends DefaultTableModel {
         fireTableStructureChanged();
     }
 
+    public List<String> getHeaders() {
+        return headers;
+    }
+
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return false;
@@ -96,19 +89,16 @@ public class ResultSetTableModelBis extends DefaultTableModel {
 
     @Override
     public int getRowCount() {
-        return (results != null) ? results.size() : 0;
+        return (values != null && !values.isEmpty()) ? values.size() : 0;
     }
 
     @Override
     public int getColumnCount() {
-        return headers.size();
+        return (headers != null && !headers.isEmpty()) ? headers.size() : 0;
     }
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        if (getValueAt(0, columnIndex).equals("true") | getValueAt(0, columnIndex).equals("false")) {
-            return boolean.class;
-        }
         return Object.class;
     }
 
