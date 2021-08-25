@@ -90,6 +90,11 @@ public class ResultSetTableModelBis extends DefaultTableModel {
     }
 
     @Override
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+        return false;
+    }
+
+    @Override
     public int getRowCount() {
         return (results != null) ? results.size() : 0;
     }
@@ -97,6 +102,14 @@ public class ResultSetTableModelBis extends DefaultTableModel {
     @Override
     public int getColumnCount() {
         return headers.size();
+    }
+
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        if (getValueAt(0, columnIndex).equals("true") | getValueAt(0, columnIndex).equals("false")) {
+            return boolean.class;
+        }
+        return Object.class;
     }
 
     @Override
