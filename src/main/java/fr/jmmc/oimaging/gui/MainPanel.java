@@ -30,9 +30,7 @@ import fr.jmmc.oitools.image.ImageOiInputParam;
 import fr.jmmc.oitools.model.OIFitsFile;
 import fr.jmmc.oitools.model.range.Range;
 import java.awt.Cursor;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -42,18 +40,9 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.swing.Action;
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.ListModel;
-import javax.swing.Timer;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.table.TableColumn;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -645,8 +634,27 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
 
     private int sliderResultLastIndex = -1;
     private void jButtonShowTableEditorActionPerformed(ActionEvent evt) {
-        TableEditor tableEditor = new TableEditor(jTablePanel.getTableModel().getHeaders());
-        tableEditor.setVisible(true);
+        JOptionPane jOptionPane = new JOptionPane();
+        JDialog dialog = jOptionPane.createDialog("Edit table headers");
+        TableEditorPanel tableEditorPanel = new TableEditorPanel(dialog, jTablePanel.getTableModel().getHeaders());
+        dialog.setContentPane(tableEditorPanel);
+        dialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                super.windowClosed(e);
+
+                JTable table = jTablePanel.getTable();
+                for (int columnIndex = 0; columnIndex < table.getColumnCount(); columnIndex++) {
+                    TableColumn column = table.getColumnModel().getColumn(columnIndex);
+                    table.removeColumn(column);
+                    if (tableEditorPanel.getKeywordsToDisplay().contains(table.getColumnName(columnIndex))) {
+                        table.addColumn(column);
+                    }
+                }
+            }
+        });
+        dialog.setSize(400, 250);
+        dialog.setVisible(true);
     }
 
     private void jSliderResultsStateChanged(ChangeEvent evt) {
@@ -730,8 +738,8 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
 
     /**
      * Listen for table selection changes
-     * 
-     * @param e 
+     *
+     * @param e
      */
     @Override
     public void tableChanged(TableModelEvent e) {

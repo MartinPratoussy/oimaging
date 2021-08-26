@@ -107,4 +107,17 @@ public class ResultSetTableModelBis extends DefaultTableModel {
         String header = getColumnName(columnIndex);
         return values.get(rowIndex).get(header);
     }
+
+    public void setHeaders(List<String> keywordsToDisplay) {
+        for (String header : headers) {
+            if (!keywordsToDisplay.contains(header)) {
+                
+            }
+        }
+
+        headers.clear();
+        headers.addAll(keywordsToDisplay);
+        setColumnIdentifiers(headers.toArray());
+        fireTableStructureChanged();
+    }
 }

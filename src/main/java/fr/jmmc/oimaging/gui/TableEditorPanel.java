@@ -1,28 +1,40 @@
-/*******************************************************************************
- * JMMC project ( http://www.jmmc.fr ) - Copyright (C) CNRS.
- ******************************************************************************/
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package fr.jmmc.oimaging.gui;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
  * @author martin
  */
-public class TableEditor extends javax.swing.JFrame {
+public class TableEditorPanel extends javax.swing.JPanel {
 
     private final List<String> availableKeywords = new ArrayList<>();
+    private final List<String> keywordsToDisplay = new ArrayList<>();
+
+    private JDialog dialog;
 
     /**
-     * Creates new form TableEditor
+     * Creates new form TableEditorPanel
      */
-    public TableEditor() {
+    public TableEditorPanel() {
         initComponents();
     }
 
-    public TableEditor(List<String> availableKeywordsKeywords) {
+    public TableEditorPanel(JDialog dialog, List<String> availableKeywordsKeywords) {
         initComponents();
+
+        this.dialog = dialog;
 
         this.availableKeywords.addAll(availableKeywordsKeywords);
         for (String keyword : this.availableKeywords) {
@@ -41,20 +53,20 @@ public class TableEditor extends javax.swing.JFrame {
         java.awt.GridBagConstraints gridBagConstraints;
 
         jButtonAdd = new javax.swing.JButton();
-        jButtonRemove = new javax.swing.JButton();
-        jLabelAvailable = new javax.swing.JLabel();
         jLabelDisplayed = new javax.swing.JLabel();
-        jButtonCancel = new javax.swing.JButton();
         jButtonOk = new javax.swing.JButton();
+        jLabelAvailable = new javax.swing.JLabel();
+        jButtonCancel = new javax.swing.JButton();
         jPanelAvailable = new javax.swing.JPanel();
         jScrollPaneAvailable = new javax.swing.JScrollPane();
         listAvailable = new java.awt.List();
         jPanelDisplayed = new javax.swing.JPanel();
         jScrollPaneDisplayed = new javax.swing.JScrollPane();
         listDisplayed = new java.awt.List();
+        jButtonRemove = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        getContentPane().setLayout(new java.awt.GridBagLayout());
+        setMinimumSize(new java.awt.Dimension(400, 250));
+        setLayout(new java.awt.GridBagLayout());
 
         jButtonAdd.setText("Add");
         jButtonAdd.addActionListener(new java.awt.event.ActionListener() {
@@ -65,37 +77,41 @@ public class TableEditor extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
-        getContentPane().add(jButtonAdd, gridBagConstraints);
-
-        jButtonRemove.setText("Remove");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
-        getContentPane().add(jButtonRemove, gridBagConstraints);
-
-        jLabelAvailable.setText("Available keywords");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        getContentPane().add(jLabelAvailable, gridBagConstraints);
+        add(jButtonAdd, gridBagConstraints);
 
         jLabelDisplayed.setText("Keywords displayed");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
-        getContentPane().add(jLabelDisplayed, gridBagConstraints);
-
-        jButtonCancel.setText("Cancel");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
-        getContentPane().add(jButtonCancel, gridBagConstraints);
+        add(jLabelDisplayed, gridBagConstraints);
 
         jButtonOk.setText("Ok");
+        jButtonOk.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonOkActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
-        getContentPane().add(jButtonOk, gridBagConstraints);
+        add(jButtonOk, gridBagConstraints);
+
+        jLabelAvailable.setText("Available keywords");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        add(jLabelAvailable, gridBagConstraints);
+
+        jButtonCancel.setText("Cancel");
+        jButtonCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCancelActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        add(jButtonCancel, gridBagConstraints);
 
         jPanelAvailable.setLayout(new java.awt.GridBagLayout());
 
@@ -107,7 +123,7 @@ public class TableEditor extends javax.swing.JFrame {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.gridheight = 2;
-        getContentPane().add(jPanelAvailable, gridBagConstraints);
+        add(jPanelAvailable, gridBagConstraints);
 
         jPanelDisplayed.setLayout(new java.awt.GridBagLayout());
 
@@ -119,48 +135,39 @@ public class TableEditor extends javax.swing.JFrame {
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.gridheight = 2;
-        getContentPane().add(jPanelDisplayed, gridBagConstraints);
+        add(jPanelDisplayed, gridBagConstraints);
 
-        pack();
+        jButtonRemove.setText("Remove");
+        jButtonRemove.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonRemoveActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        add(jButtonRemove, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAddActionPerformed
-        // TODO add your handling code here:
+        listDisplayed.add(listAvailable.getSelectedItem());
     }//GEN-LAST:event_jButtonAddActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(TableEditor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(TableEditor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(TableEditor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(TableEditor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+    private void jButtonRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRemoveActionPerformed
+        listDisplayed.remove(listDisplayed.getSelectedItem());
+    }//GEN-LAST:event_jButtonRemoveActionPerformed
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new TableEditor().setVisible(true);
-            }
-        });
+    private void jButtonOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOkActionPerformed
+        keywordsToDisplay.addAll(Arrays.asList(listDisplayed.getItems()));
+        dialog.dispose();
+    }//GEN-LAST:event_jButtonOkActionPerformed
+
+    private void jButtonCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCancelActionPerformed
+        dialog.dispose();
+    }//GEN-LAST:event_jButtonCancelActionPerformed
+
+    public List<String> getKeywordsToDisplay() {
+        return keywordsToDisplay;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
