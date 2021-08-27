@@ -5,16 +5,20 @@ package fr.jmmc.oimaging.gui;
 
 import fr.jmmc.jmcs.gui.component.BasicTableSorter;
 import fr.jmmc.jmcs.gui.util.SwingUtils;
+import fr.jmmc.oiexplorer.core.gui.model.ColumnsTableModel;
 import fr.jmmc.oimaging.model.ResultSetTableModel;
 import fr.jmmc.oimaging.model.RatingCell;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 import fr.jmmc.oimaging.model.ResultSetTableModelBis;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.util.Collections;
 
 /**
  *
@@ -112,12 +116,16 @@ public class TablePanel extends javax.swing.JPanel {
         dialog.setSize(400, 250);
         dialog.setVisible(true);
 
-        // Get the new headers returned by the dialog box
-        for (int columnIndex = 0; columnIndex < jResultSetTable.getColumnCount(); columnIndex++) {
-            TableColumn column = jResultSetTable.getColumnModel().getColumn(columnIndex);
-            jResultSetTable.removeColumn(column);
-            if (tableEditorPanel.getKeywordsToDisplay().contains(jResultSetTable.getColumnName(columnIndex))) {
-                jResultSetTable.addColumn(column);
+        // Get the new headers returned by the dialog box et redefine the table
+        TableColumnModel resultSetTableColumnModel = jResultSetTable.getColumnModel();
+        for (TableColumn column : Collections.list(resultSetTableColumnModel.getColumns())) {
+            column.setMinWidth(0);
+            column.setMaxWidth(0);
+            column.setPreferredWidth(0);
+            if (tableEditorPanel.getKeywordsToDisplay().contains((String) column.getHeaderValue())) {
+                column.setMinWidth(0);
+                column.setMaxWidth(1920 /*TODO: find a better way to get a less raw width */);
+                column.sizeWidthToFit();
             }
         }
     }
