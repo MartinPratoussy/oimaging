@@ -51,19 +51,22 @@ public class ResultSetTableModelBis extends DefaultTableModel {
         // For each result in the results set, populate all the table values and headers
         results.forEach(result -> {
             try {
+                // Get all the values
                 Map<String, Object> inputKeywordsValue = result.getOifitsFile().getImageOiData().getInputParam().getKeywordsValue();
                 Map<String, Object> outputKeywordsValue = result.getOifitsFile().getImageOiData().getOutputParam().getKeywordsValue();
-
-                inputHeaders.addAll(inputKeywordsValue.keySet());
-                outputHeaders.addAll(outputKeywordsValue.keySet());
 
                 values.add(new HashMap<>());
                 values.get(values.size() - 1).putAll(inputKeywordsValue);
                 values.get(values.size() - 1).putAll(outputKeywordsValue);
 
+                inputHeaders.addAll(inputKeywordsValue.keySet());
+                outputHeaders.addAll(outputKeywordsValue.keySet());
+
+                // Merge the input and output headers in a unique headers list without duplicates
                 List<String> newHeaders = Stream.concat(inputHeaders.stream(), outputHeaders.stream()).distinct().collect(Collectors.toList());
                 List<String> tempHeaders = new ArrayList<>(headers);
 
+                // Merge the previous combined headers with new ones without duplicates
                 headers.clear();
                 headers.addAll(Stream.concat(tempHeaders.stream(), newHeaders.stream()).distinct().collect(Collectors.toList()));
 
@@ -89,12 +92,12 @@ public class ResultSetTableModelBis extends DefaultTableModel {
 
     @Override
     public int getRowCount() {
-        return (values != null && !values.isEmpty()) ? values.size() : 0;
+        return values != null && !values.isEmpty() ? values.size() : 0;
     }
 
     @Override
     public int getColumnCount() {
-        return (headers != null && !headers.isEmpty()) ? headers.size() : 0;
+        return headers != null && !headers.isEmpty() ? headers.size() : 0;
     }
 
     @Override
@@ -106,18 +109,5 @@ public class ResultSetTableModelBis extends DefaultTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         String header = getColumnName(columnIndex);
         return values.get(rowIndex).get(header);
-    }
-
-    public void setHeaders(List<String> keywordsToDisplay) {
-        for (String header : headers) {
-            if (!keywordsToDisplay.contains(header)) {
-                
-            }
-        }
-
-        headers.clear();
-        headers.addAll(keywordsToDisplay);
-        setColumnIdentifiers(headers.toArray());
-        fireTableStructureChanged();
     }
 }

@@ -171,7 +171,6 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
         jTablePanel.addControlComponent(jButtonCompare);
         jTablePanel.addControlComponent(jButtonDelete);
         jTablePanel.addControlComponent(jSliderResults);
-        jTablePanel.addControlComponent(jButtonShowTableEditor);
 
         jSplitPane.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, new PropertyChangeListener() {
 
@@ -290,7 +289,6 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
 
         jButtonCompare = new javax.swing.JButton();
         jButtonDelete = new javax.swing.JButton();
-        jButtonShowTableEditor = new javax.swing.JButton();
         jSplitPaneGlobal = new javax.swing.JSplitPane();
         jSplitPane = new javax.swing.JSplitPane();
         viewerPanel = new fr.jmmc.oimaging.gui.ViewerPanel();
@@ -335,13 +333,6 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
         jButtonDelete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonDeleteActionPerformed(evt);
-            }
-        });
-
-        jButtonShowTableEditor.setText("Table editor");
-        jButtonShowTableEditor.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonShowTableEditorActionPerformed(evt);
             }
         });
 
@@ -633,30 +624,6 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
     }// </editor-fold>//GEN-END:initComponents
 
     private int sliderResultLastIndex = -1;
-    private void jButtonShowTableEditorActionPerformed(ActionEvent evt) {
-        JOptionPane jOptionPane = new JOptionPane();
-        JDialog dialog = jOptionPane.createDialog("Edit table headers");
-        TableEditorPanel tableEditorPanel = new TableEditorPanel(dialog, jTablePanel.getTableModel().getHeaders());
-        dialog.setContentPane(tableEditorPanel);
-        dialog.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosed(WindowEvent e) {
-                super.windowClosed(e);
-
-                JTable table = jTablePanel.getTable();
-                for (int columnIndex = 0; columnIndex < table.getColumnCount(); columnIndex++) {
-                    TableColumn column = table.getColumnModel().getColumn(columnIndex);
-                    table.removeColumn(column);
-                    if (tableEditorPanel.getKeywordsToDisplay().contains(table.getColumnName(columnIndex))) {
-                        table.addColumn(column);
-                    }
-                }
-            }
-        });
-        dialog.setSize(400, 250);
-        dialog.setVisible(true);
-    }
-
     private void jSliderResultsStateChanged(ChangeEvent evt) {
         if (!syncingUI && jSliderResults.getValue() != -1) {
             final int index = jSliderResults.getMaximum() - jSliderResults.getValue();
@@ -756,7 +723,6 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
     private javax.swing.JButton jButtonExportOIFits;
     private javax.swing.JButton jButtonLoadData;
     private javax.swing.JButton jButtonRun;
-    private javax.swing.JButton jButtonShowTableEditor;
     private javax.swing.JCheckBox jCheckBoxUseT3;
     private javax.swing.JCheckBox jCheckBoxUseVis;
     private javax.swing.JCheckBox jCheckBoxUseVis2;

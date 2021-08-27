@@ -6,12 +6,9 @@
 package fr.jmmc.oimaging.gui;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  *
