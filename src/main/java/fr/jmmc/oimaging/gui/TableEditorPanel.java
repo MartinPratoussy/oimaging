@@ -34,17 +34,18 @@ public class TableEditorPanel extends javax.swing.JPanel implements MouseListene
     }
 
     // Constructor used when an edition has already been done
-    public TableEditorPanel(JDialog dialog, List<String> availableKeywordsKeywords, List<String> keywordsDisplayed) {
+    public TableEditorPanel(JDialog dialog, List<String> availableKeywords, List<String> keywordsDisplayed) {
         initComponents();
 
         this.dialog = dialog;
 
         // Add all the results keywords in the list
         this.availableKeywords.clear();
-        this.availableKeywords.addAll(availableKeywordsKeywords);
+        this.availableKeywords.addAll(availableKeywords);
         for (String keyword : this.availableKeywords) {
             listAvailable.add(keyword);
         }
+        jLabelAvailableNb.setText(listAvailable.getItemCount() + " available");
 
         // Only add keywords if an edition has been done
         this.keywordsDisplayed.clear();
@@ -57,6 +58,7 @@ public class TableEditorPanel extends javax.swing.JPanel implements MouseListene
         else {
             this.keywordsDisplayed.addAll(this.availableKeywords);
         }
+        jLabelDisplayedNb.setText(listDisplayed.getItemCount() + " selected");
     }
 
     /**
@@ -81,6 +83,8 @@ public class TableEditorPanel extends javax.swing.JPanel implements MouseListene
         jScrollPaneDisplayed = new javax.swing.JScrollPane();
         listDisplayed = new java.awt.List();
         jButtonRemove = new javax.swing.JButton();
+        jLabelAvailableNb = new javax.swing.JLabel();
+        jLabelDisplayedNb = new javax.swing.JLabel();
 
         setMinimumSize(new java.awt.Dimension(400, 250));
         setLayout(new java.awt.GridBagLayout());
@@ -93,7 +97,7 @@ public class TableEditorPanel extends javax.swing.JPanel implements MouseListene
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         add(jButtonAdd, gridBagConstraints);
 
         jLabelDisplayed.setText("Keywords displayed");
@@ -162,19 +166,33 @@ public class TableEditorPanel extends javax.swing.JPanel implements MouseListene
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         add(jButtonRemove, gridBagConstraints);
+
+        jLabelAvailableNb.setText("jLabel1");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        add(jLabelAvailableNb, gridBagConstraints);
+
+        jLabelDisplayedNb.setText("jLabel2");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        add(jLabelDisplayedNb, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAddActionPerformed
         if (listAvailable.getSelectedItem() != null) {
             listDisplayed.add(listAvailable.getSelectedItem());
+            jLabelDisplayedNb.setText(listDisplayed.getItemCount() + " selected");
         }
     }//GEN-LAST:event_jButtonAddActionPerformed
 
     private void jButtonRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRemoveActionPerformed
         if (listDisplayed.getSelectedItem() != null) {
             listDisplayed.remove(listDisplayed.getSelectedItem());
+            jLabelDisplayedNb.setText(listDisplayed.getItemCount() + " selected");
         }
     }//GEN-LAST:event_jButtonRemoveActionPerformed
 
@@ -198,13 +216,16 @@ public class TableEditorPanel extends javax.swing.JPanel implements MouseListene
     private javax.swing.JButton jButtonOk;
     private javax.swing.JButton jButtonRemove;
     private javax.swing.JLabel jLabelAvailable;
+    private javax.swing.JLabel jLabelAvailableNb;
     private javax.swing.JLabel jLabelDisplayed;
+    private javax.swing.JLabel jLabelDisplayedNb;
     private javax.swing.JPanel jPanelAvailable;
     private javax.swing.JPanel jPanelDisplayed;
     private javax.swing.JScrollPane jScrollPaneAvailable;
     private javax.swing.JScrollPane jScrollPaneDisplayed;
     private java.awt.List listAvailable;
     private java.awt.List listDisplayed;
+    // End of variables declaration//GEN-END:variables
 
     @Override
     public void mouseClicked(MouseEvent mouseEvent) {
@@ -233,5 +254,4 @@ public class TableEditorPanel extends javax.swing.JPanel implements MouseListene
     @Override
     public void mouseExited(MouseEvent mouseEvent) {
     }
-    // End of variables declaration//GEN-END:variables
 }
