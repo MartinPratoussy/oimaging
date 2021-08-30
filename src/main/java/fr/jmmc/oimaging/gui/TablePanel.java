@@ -5,20 +5,14 @@ package fr.jmmc.oimaging.gui;
 
 import fr.jmmc.jmcs.gui.component.BasicTableSorter;
 import fr.jmmc.jmcs.gui.util.SwingUtils;
-import fr.jmmc.oiexplorer.core.gui.model.ColumnsTableModel;
-import fr.jmmc.oimaging.model.ResultSetTableModel;
-import fr.jmmc.oimaging.model.RatingCell;
+import fr.jmmc.oimaging.model.ResultSetTableModelBis;
+import fr.jmmc.oimaging.services.ServiceResult;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableColumnModel;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-
-import fr.jmmc.oimaging.model.ResultSetTableModelBis;
-
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
-import java.util.Collections;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -31,6 +25,8 @@ public class TablePanel extends javax.swing.JPanel {
      */
     private final ResultSetTableModelBis resultSetTableModelBis;
 
+    List<String> headers = new ArrayList<>();
+
     /**
      * Creates new form TablePanel
      */
@@ -38,20 +34,11 @@ public class TablePanel extends javax.swing.JPanel {
 
         // Build ResultsTable
         resultSetTableModelBis = new ResultSetTableModelBis();
-
         initComponents();
 
         BasicTableSorter resultSetTableSorter = new BasicTableSorter(resultSetTableModelBis, jResultSetTable.getTableHeader());
         jResultSetTable.setModel(resultSetTableSorter);
         SwingUtils.adjustRowHeight(jResultSetTable);
-
-        jResultSetTable.setDefaultRenderer(jResultSetTable.getColumnClass(ResultSetTableModel.SUCCESS), new SuccessCell());
-
-        final RatingCell ratingCell = new RatingCell();
-        
-        final TableColumn column = jResultSetTable.getColumn(resultSetTableModel.getColumnName(ResultSetTableModel.RATING));
-        column.setCellRenderer(ratingCell);
-        column.setCellEditor(ratingCell);
     }
 
     /**
@@ -92,15 +79,52 @@ public class TablePanel extends javax.swing.JPanel {
         }// </editor-fold>//GEN-END:initComponents
 
     public JTable getTable() {
-        return this.jResultSetTable;
+        return jResultSetTable;
     }
 
-    public ResultSetTableModelBis getTableModel() {
-        return this.resultSetTableModelBis;
+    private ResultSetTableModelBis getTableModel() {
+        return resultSetTableModelBis;
     }
 
     public void addControlComponent(JComponent component) {
         jPanelTableOptions.add(component);
+    }
+
+    public void setResults(List<ServiceResult> results) {
+
+        // Exit the method if the result set is empty
+        if (results.isEmpty()) return;
+
+        List<String> headers = new ArrayList<>(getTableModel().getHeaders());
+        List<Map<String, Object>> values = new ArrayList<>();
+
+        // For each result in the results set, populate all the table values and headers
+        results.forEach(result -> {
+            // Get all the values
+            Map<String, Object> inputKeywordsValue = result.getOifitsFile().getImageOiData().getInputParam().getKeywordsValue();
+            Map<String, Object> outputKeywordsValue = result.getOifitsFile().getImageOiData().getOutputParam().getKeywordsValue();
+
+            values.add(new HashMap<>());
+            values.get(values.size() - 1).putAll(inputKeywordsValue);
+            values.get(values.size() - 1).putAll(outputKeywordsValue);
+
+            Set<String> inputHeaders = inputKeywordsValue.keySet();
+            Set<String> outputHeaders = outputKeywordsValue.keySet();
+
+            // Merge the input and output headers in a unique headers list without duplicates
+            List<String> newHeaders = Stream.concat(inputHeaders.stream(), outputHeaders.stream()).distinct().collect(Collectors.toList());
+            List<String> tempHeaders = new ArrayList<>(headers);
+
+            // Merge the previous combined headers with new ones without duplicates
+            headers.clear();
+            headers.addAll(Stream.concat(tempHeaders.stream(), newHeaders.stream()).distinct().collect(Collectors.toList()));
+
+            this.headers.clear();
+            this.headers.addAll(headers);
+
+        });
+
+        getTableModel().populate(headers, values);
     }
 
     /**
@@ -111,22 +135,14 @@ public class TablePanel extends javax.swing.JPanel {
         // Set the dialog box
         JOptionPane jOptionPane = new JOptionPane();
         JDialog dialog = jOptionPane.createDialog("Edit table headers");
-        TableEditorPanel tableEditorPanel = new TableEditorPanel(dialog, resultSetTableModelBis.getHeaders());
+        TableEditorPanel tableEditorPanel = new TableEditorPanel(dialog, headers, getTableModel().getHeaders());
         dialog.setContentPane(tableEditorPanel);
         dialog.setSize(400, 250);
         dialog.setVisible(true);
 
         // Get the new headers returned by the dialog box et redefine the table
-        TableColumnModel resultSetTableColumnModel = jResultSetTable.getColumnModel();
-        for (TableColumn column : Collections.list(resultSetTableColumnModel.getColumns())) {
-            column.setMinWidth(0);
-            column.setMaxWidth(0);
-            column.setPreferredWidth(0);
-            if (tableEditorPanel.getKeywordsToDisplay().contains((String) column.getHeaderValue())) {
-                column.setMinWidth(0);
-                column.setMaxWidth(1920 /*TODO: find a better way to get a less raw width */);
-                column.sizeWidthToFit();
-            }
+        if (!getTableModel().getHeaders().equals(tableEditorPanel.getKeywordsToDisplay())) {
+            getTableModel().setHeaders(tableEditorPanel.getKeywordsToDisplay());
         }
     }
 

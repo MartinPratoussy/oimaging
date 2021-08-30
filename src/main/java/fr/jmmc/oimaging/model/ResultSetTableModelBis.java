@@ -23,13 +23,8 @@ import java.util.stream.Stream;
  */
 public class ResultSetTableModelBis extends DefaultTableModel {
 
-    private final List<String> outputHeaders = new ArrayList<>();
-    private final List<String> inputHeaders = new ArrayList<>();
-
     private final List<String> headers = new ArrayList<>();
-
     private final List<Map<String, Object>> values = new ArrayList<>();
-
 
     public ResultSetTableModelBis() {
         super();
@@ -38,42 +33,17 @@ public class ResultSetTableModelBis extends DefaultTableModel {
     /**
      * Redesign entirely the result table with the new headers and the new values
      *
-     * @param results The result set
+     * @param headers The keywords shown in the headers
+     * @param values The new set of values
      */
-    public void populate(List<ServiceResult> results) {
+    public void populate(List<String> headers, List<Map<String, Object>> values) {
 
         // Clear everything
-        inputHeaders.clear();
-        outputHeaders.clear();
-        headers.clear();
-        values.clear();
+        this.headers.clear();
+        this.headers.addAll(headers);
 
-        // For each result in the results set, populate all the table values and headers
-        results.forEach(result -> {
-            try {
-                // Get all the values
-                Map<String, Object> inputKeywordsValue = result.getOifitsFile().getImageOiData().getInputParam().getKeywordsValue();
-                Map<String, Object> outputKeywordsValue = result.getOifitsFile().getImageOiData().getOutputParam().getKeywordsValue();
-
-                values.add(new HashMap<>());
-                values.get(values.size() - 1).putAll(inputKeywordsValue);
-                values.get(values.size() - 1).putAll(outputKeywordsValue);
-
-                inputHeaders.addAll(inputKeywordsValue.keySet());
-                outputHeaders.addAll(outputKeywordsValue.keySet());
-
-                // Merge the input and output headers in a unique headers list without duplicates
-                List<String> newHeaders = Stream.concat(inputHeaders.stream(), outputHeaders.stream()).distinct().collect(Collectors.toList());
-                List<String> tempHeaders = new ArrayList<>(headers);
-
-                // Merge the previous combined headers with new ones without duplicates
-                headers.clear();
-                headers.addAll(Stream.concat(tempHeaders.stream(), newHeaders.stream()).distinct().collect(Collectors.toList()));
-
-            } catch (IOException | FitsException e) {
-                e.printStackTrace();
-            }
-        });
+        this.values.clear();
+        this.values.addAll(values);
 
         setColumnCount(headers.size());
         setColumnIdentifiers(headers.toArray());
@@ -83,6 +53,13 @@ public class ResultSetTableModelBis extends DefaultTableModel {
 
     public List<String> getHeaders() {
         return headers;
+    }
+
+    public void setHeaders(List<String> headers) {
+        this.headers.clear();
+        this.headers.addAll(headers);
+
+        fireTableStructureChanged();
     }
 
     @Override

@@ -918,7 +918,7 @@ public class MainPanel extends javax.swing.JPanel implements IRModelEventListene
             jListResults.setModel(resultSetListModel);
 
             // resultSet Table
-            jTablePanel.getTableModel().populate(currentModel.getResultSets());
+            jTablePanel.setResults(currentModel.getResultSets());
 
             // set the slider results boundaries
             if (resultSetList.size() > 1) {

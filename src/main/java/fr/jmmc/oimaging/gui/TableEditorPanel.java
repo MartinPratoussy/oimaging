@@ -6,36 +6,56 @@
 package fr.jmmc.oimaging.gui;
 
 import javax.swing.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
+ * Panel to be added in a dialog box to edit the display of the table
+ * TODO FIX: The headers are cleared if the user presses the close button
+ * TODO FIX: Convert lists from List to JList to handle event on double click
  *
  * @author martin
  */
-public class TableEditorPanel extends javax.swing.JPanel {
+public class TableEditorPanel extends javax.swing.JPanel implements MouseListener {
 
     private final List<String> availableKeywords = new ArrayList<>();
     private final List<String> keywordsToDisplay = new ArrayList<>();
+    private final List<String> keywordsDisplayed = new ArrayList<>();
 
+    // Reference to the parent dialog box to handle its events
     private JDialog dialog;
 
-    /**
-     * Creates new form TableEditorPanel
-     */
-    public TableEditorPanel() {
-        initComponents();
+    // Constructor used for the first iteration of the class TODO
+    public TableEditorPanel(JDialog dialog, List<String> availableKeywordsKeywords) {
+        this(dialog, availableKeywordsKeywords, null);
     }
 
-    public TableEditorPanel(JDialog dialog, List<String> availableKeywordsKeywords) {
+    // Constructor used when an edition has already been done
+    public TableEditorPanel(JDialog dialog, List<String> availableKeywordsKeywords, List<String> keywordsDisplayed) {
         initComponents();
 
         this.dialog = dialog;
 
+        // Add all the results keywords in the list
+        this.availableKeywords.clear();
         this.availableKeywords.addAll(availableKeywordsKeywords);
         for (String keyword : this.availableKeywords) {
             listAvailable.add(keyword);
+        }
+
+        // Only add keywords if an edition has been done
+        this.keywordsDisplayed.clear();
+        if (keywordsDisplayed != null) {
+            this.keywordsDisplayed.addAll(keywordsDisplayed);
+            for (String keyword : this.keywordsDisplayed) {
+                listDisplayed.add(keyword);
+            }
+        }
+        else {
+            this.keywordsDisplayed.addAll(this.availableKeywords);
         }
     }
 
@@ -147,11 +167,15 @@ public class TableEditorPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAddActionPerformed
-        listDisplayed.add(listAvailable.getSelectedItem());
+        if (listAvailable.getSelectedItem() != null) {
+            listDisplayed.add(listAvailable.getSelectedItem());
+        }
     }//GEN-LAST:event_jButtonAddActionPerformed
 
     private void jButtonRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRemoveActionPerformed
-        listDisplayed.remove(listDisplayed.getSelectedItem());
+        if (listDisplayed.getSelectedItem() != null) {
+            listDisplayed.remove(listDisplayed.getSelectedItem());
+        }
     }//GEN-LAST:event_jButtonRemoveActionPerformed
 
     private void jButtonOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOkActionPerformed
@@ -160,6 +184,7 @@ public class TableEditorPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jButtonOkActionPerformed
 
     private void jButtonCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCancelActionPerformed
+        keywordsToDisplay.addAll(keywordsDisplayed);
         dialog.dispose();
     }//GEN-LAST:event_jButtonCancelActionPerformed
 
@@ -180,5 +205,33 @@ public class TableEditorPanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPaneDisplayed;
     private java.awt.List listAvailable;
     private java.awt.List listDisplayed;
+
+    @Override
+    public void mouseClicked(MouseEvent mouseEvent) {
+        if (mouseEvent.getClickCount() == 2) {
+            if (mouseEvent.getSource() == listAvailable) {
+                listDisplayed.add(listAvailable.getSelectedItem());
+            }
+            else if (mouseEvent.getSource() == listDisplayed) {
+                listDisplayed.remove(listDisplayed.getSelectedItem());
+            }
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent mouseEvent) {
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent mouseEvent) {
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent mouseEvent) {
+    }
+
+    @Override
+    public void mouseExited(MouseEvent mouseEvent) {
+    }
     // End of variables declaration//GEN-END:variables
 }
