@@ -8,9 +8,16 @@ import fr.jmmc.jmcs.gui.util.SwingUtils;
 import fr.jmmc.oimaging.model.ResultSetTableModel;
 import fr.jmmc.oimaging.model.RatingCell;
 import fr.jmmc.oimaging.services.ServiceResult;
+import fr.jmmc.oitools.fits.FitsHeaderCard;
+import fr.jmmc.oitools.image.ImageOiData;
+import fr.jmmc.oitools.image.ImageOiInputParam;
+import fr.jmmc.oitools.image.ImageOiOutputParam;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -44,13 +51,13 @@ public class TablePanel extends javax.swing.JPanel {
         jResultSetTable.setModel(resultSetTableSorter);
         SwingUtils.adjustRowHeight(jResultSetTable);
 
-        jResultSetTable.setDefaultRenderer(jResultSetTable.getColumnClass(ResultSetTableModel.SUCCESS), new SuccessCell());
+        //jResultSetTable.setDefaultRenderer(jResultSetTable.getColumnClass(ResultSetTableModel.SUCCESS), new SuccessCell());
 
         final RatingCell ratingCell = new RatingCell();
 
-        final TableColumn column = jResultSetTable.getColumn(resultSetTableModel.getColumnName(ResultSetTableModel.RATING));
+        /*final TableColumn column = jResultSetTable.getColumn(resultSetTableModel.getColumnName(ResultSetTableModel.RATING));
         column.setCellRenderer(ratingCell);
-        column.setCellEditor(ratingCell);
+        column.setCellEditor(ratingCell);*/
     }
 
     /**
@@ -82,6 +89,50 @@ public class TablePanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     public void setResults(List<ServiceResult> results) {
+        // Exit the method if the result set is empty
+        if (results.isEmpty()) return;
+
+        List<String> headers = new ArrayList<>(getTableModel().getHeaders());
+        List<ResultSetTableModel.Header> tableHeaders = new ArrayList<>();
+
+        // For each result in the results set, populate all the table values and headers
+        results.forEach(result -> {
+
+            ImageOiInputParam input = result.getOifitsFile().getImageOiData().getInputParam();
+            ImageOiOutputParam output = result.getOifitsFile().getImageOiData().getOutputParam();
+
+            // Get the input headers
+            List<ResultSetTableModel.Header> inputs = new ArrayList<>();
+            for (String header : input.getKeywordsValue().keySet()) {
+                inputs.add(new ResultSetTableModel.Header("INPUT", header));
+            }
+            for (FitsHeaderCard card : input.getHeaderCards()) {
+                inputs.add(new ResultSetTableModel.Header("INPUT", card.getKey()));
+            }
+
+            // Get the output headers
+            List<ResultSetTableModel.Header> outputs = new ArrayList<>();
+            for (String header : output.getKeywordsValue().keySet()) {
+                outputs.add(new ResultSetTableModel.Header("OUTPUT", header));
+            }
+            for (FitsHeaderCard card : output.getHeaderCards()) {
+                outputs.add(new ResultSetTableModel.Header("OUTPUT", card.getKey()));
+            }
+
+            // Add all the headers collected in a new a list
+            tableHeaders.addAll(inputs);
+            tableHeaders.addAll(outputs);
+
+            // Merge the input and output headers in a unique headers list without duplicates
+            /*List<String> newHeaders = Stream.concat(inputs.stream(), outputs.stream()).distinct().collect(Collectors.toList());
+            List<String> tempHeaders = new ArrayList<>(headers);
+
+            // Merge the previous combined headers with new ones without duplicates
+            headers.clear();
+            headers.addAll(Stream.concat(tempHeaders.stream(), newHeaders.stream()).distinct().collect(Collectors.toList()));*/
+        });
+
+        getTableModel().setHeaders(tableHeaders);
         getTableModel().setResults(results);
     }
 
