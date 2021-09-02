@@ -12,7 +12,6 @@ import fr.jmmc.oitools.image.ImageOiOutputParam;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -22,15 +21,15 @@ public class ResultSetTableModel extends DefaultTableModel {
 
     private static final long serialVersionUID = 1L;
 
-    private List<Header> headers = new ArrayList<>();
+    private List<ColumnKeyword> columnKeywords = new ArrayList<>();
     private List<ServiceResult> results = new ArrayList<>();
 
     public ResultSetTableModel() {
         super();
     }
     
-    public void setHeaders(List<Header> headers) {
-        this.headers = headers;
+    public void setHeaders(List<ColumnKeyword> columnKeywords) {
+        this.columnKeywords = columnKeywords;
         fireTableStructureChanged();
     }
 
@@ -50,12 +49,12 @@ public class ResultSetTableModel extends DefaultTableModel {
 
     @Override
     public int getColumnCount() {
-        return (headers != null) ? headers.size() : 0;
+        return (columnKeywords != null) ? columnKeywords.size() : 0;
     }
 
     @Override
     public String getColumnName(int columnIndex) {
-        return headers.get(columnIndex).getValue();
+        return columnKeywords.get(columnIndex).getValue();
     }
 
     @Override
@@ -102,9 +101,9 @@ public class ResultSetTableModel extends DefaultTableModel {
         final ServiceResult result = getServiceResult(rowIndex);
 
         String source = "";
-        for (Header header : headers) {
-            if (header.getValue().equals(getColumnName(columnIndex))) {
-                source = header.getSource();
+        for (ColumnKeyword columnKeyword : columnKeywords) {
+            if (columnKeyword.getValue().equals(getColumnName(columnIndex))) {
+                source = columnKeyword.getSource();
             }
         }
 
@@ -121,7 +120,7 @@ public class ResultSetTableModel extends DefaultTableModel {
     }
 
     public List<String> getHeaders() {
-        return headers.stream().map(Header::getValue).collect(Collectors.toList());
+        return columnKeywords.stream().map(ColumnKeyword::getValue).collect(Collectors.toList());
     }
 
     // use enum or just create ColumnProvider(name)
@@ -200,12 +199,15 @@ public class ResultSetTableModel extends DefaultTableModel {
         public abstract Object getValue(ServiceResult result, final String column);
     }
 
-    public static class Header {
+    /**
+     * Associate a keyword with its source in the OiFits file
+     */
+    public static class ColumnKeyword {
 
         String source;
         String value;
 
-        public Header (String source, String value) {
+        public ColumnKeyword(String source, String value) {
             this.source = source;
             this.value = value;
         }
@@ -222,8 +224,8 @@ public class ResultSetTableModel extends DefaultTableModel {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            Header header = (Header) o;
-            return Objects.equals(source, header.source) && Objects.equals(value, header.value);
+            ColumnKeyword columnKeyword = (ColumnKeyword) o;
+            return Objects.equals(source, columnKeyword.source) && Objects.equals(value, columnKeyword.value);
         }
 
         @Override

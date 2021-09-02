@@ -9,19 +9,16 @@ import fr.jmmc.oimaging.model.ResultSetTableModel;
 import fr.jmmc.oimaging.model.RatingCell;
 import fr.jmmc.oimaging.services.ServiceResult;
 import fr.jmmc.oitools.fits.FitsHeaderCard;
-import fr.jmmc.oitools.image.ImageOiData;
 import fr.jmmc.oitools.image.ImageOiInputParam;
 import fr.jmmc.oitools.image.ImageOiOutputParam;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.table.TableColumn;
 
 /**
  *
@@ -92,47 +89,43 @@ public class TablePanel extends javax.swing.JPanel {
         // Exit the method if the result set is empty
         if (results.isEmpty()) return;
 
-        List<String> headers = new ArrayList<>(getTableModel().getHeaders());
-        List<ResultSetTableModel.Header> tableHeaders = new ArrayList<>();
+        List<ResultSetTableModel.ColumnKeyword> tableColumnKeywords = new ArrayList<>();
 
         // For each result in the results set, populate all the table values and headers
-        results.forEach(result -> {
+        for (ServiceResult result : results) {
 
+            // Get the location of the input and output keywords and header cards
             ImageOiInputParam input = result.getOifitsFile().getImageOiData().getInputParam();
             ImageOiOutputParam output = result.getOifitsFile().getImageOiData().getOutputParam();
 
             // Get the input headers
-            List<ResultSetTableModel.Header> inputs = new ArrayList<>();
+            List<ResultSetTableModel.ColumnKeyword> inputs = new ArrayList<>();
             for (String header : input.getKeywordsValue().keySet()) {
-                inputs.add(new ResultSetTableModel.Header("INPUT", header));
+                inputs.add(new ResultSetTableModel.ColumnKeyword("INPUT", header));
             }
             for (FitsHeaderCard card : input.getHeaderCards()) {
-                inputs.add(new ResultSetTableModel.Header("INPUT", card.getKey()));
+                inputs.add(new ResultSetTableModel.ColumnKeyword("INPUT", card.getKey()));
             }
 
             // Get the output headers
-            List<ResultSetTableModel.Header> outputs = new ArrayList<>();
+            List<ResultSetTableModel.ColumnKeyword> outputs = new ArrayList<>();
             for (String header : output.getKeywordsValue().keySet()) {
-                outputs.add(new ResultSetTableModel.Header("OUTPUT", header));
+                outputs.add(new ResultSetTableModel.ColumnKeyword("OUTPUT", header));
             }
             for (FitsHeaderCard card : output.getHeaderCards()) {
-                outputs.add(new ResultSetTableModel.Header("OUTPUT", card.getKey()));
+                outputs.add(new ResultSetTableModel.ColumnKeyword("OUTPUT", card.getKey()));
             }
 
             // Add all the headers collected in a new a list
-            tableHeaders.addAll(inputs);
-            tableHeaders.addAll(outputs);
-
-            // Merge the input and output headers in a unique headers list without duplicates
-            /*List<String> newHeaders = Stream.concat(inputs.stream(), outputs.stream()).distinct().collect(Collectors.toList());
-            List<String> tempHeaders = new ArrayList<>(headers);
+            List<ResultSetTableModel.ColumnKeyword> newKeywords = new ArrayList<>();
+            newKeywords.addAll(inputs);
+            newKeywords.addAll(outputs);
 
             // Merge the previous combined headers with new ones without duplicates
-            headers.clear();
-            headers.addAll(Stream.concat(tempHeaders.stream(), newHeaders.stream()).distinct().collect(Collectors.toList()));*/
-        });
+            tableColumnKeywords = Stream.concat(tableColumnKeywords.stream(), newKeywords.stream()).distinct().collect(Collectors.toList());
+        }
 
-        getTableModel().setHeaders(tableHeaders);
+        getTableModel().setHeaders(tableColumnKeywords);
         getTableModel().setResults(results);
     }
 
