@@ -12,13 +12,12 @@ import fr.jmmc.oitools.fits.FitsHeaderCard;
 import fr.jmmc.oitools.image.ImageOiInputParam;
 import fr.jmmc.oitools.image.ImageOiOutputParam;
 
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.swing.JComponent;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 
 /**
  *
@@ -33,6 +32,9 @@ public class TablePanel extends javax.swing.JPanel {
      */
     private final ResultSetTableModel resultSetTableModel;
     private final BasicTableSorter resultSetTableSorter;
+    private List<ResultSetTableModel.ColumnKeyword> tableColumnKeywords;
+
+    private boolean hasColumnKeywordsBeenEdited = false;
 
     /**
      * Creates new form TablePanel
@@ -71,6 +73,7 @@ public class TablePanel extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         jResultSetTable = new javax.swing.JTable();
         jPanelTableOptions = new javax.swing.JPanel();
+        jButtonShowTableEditor = new javax.swing.JButton();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -83,13 +86,41 @@ public class TablePanel extends javax.swing.JPanel {
         jSplitPane1.setLeftComponent(jPanelTableOptions);
 
         add(jSplitPane1, java.awt.BorderLayout.CENTER);
+
+        jButtonShowTableEditor.setText("Table editor");
+        jButtonShowTableEditor.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonShowTableEditorActionPerformed(evt);
+            }
+        });
+        jPanelTableOptions.add(jButtonShowTableEditor);
     }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * Display the table keywords editor and set the new headers
+     */
+    private void jButtonShowTableEditorActionPerformed(ActionEvent evt) {
+        // Set the dialog box
+        JOptionPane jOptionPane = new JOptionPane();
+        JDialog dialog = jOptionPane.createDialog("Edit table headers");
+        TableEditorPanel tableEditorPanel = new TableEditorPanel(dialog, tableColumnKeywords, getTableModel().getHeaders());
+        dialog.setContentPane(tableEditorPanel);
+        dialog.setSize(400, 250);
+        dialog.setVisible(true);
+
+        // Get the new headers returned by the dialog box et redefine the table
+        if (!getTableModel().getHeaders().equals(tableEditorPanel.getKeywordsToDisplay())) {
+            getTableModel().setColumnKeywords(tableEditorPanel.getKeywordsToDisplay());
+            hasColumnKeywordsBeenEdited = true;
+        }
+    }
 
     public void setResults(List<ServiceResult> results) {
         // Exit the method if the result set is empty
         if (results.isEmpty()) return;
 
-        List<ResultSetTableModel.ColumnKeyword> tableColumnKeywords = new ArrayList<>();
+        tableColumnKeywords = new ArrayList<>();
 
         // For each result in the results set, populate all the table values and headers
         for (ServiceResult result : results) {
@@ -125,7 +156,9 @@ public class TablePanel extends javax.swing.JPanel {
             tableColumnKeywords = Stream.concat(tableColumnKeywords.stream(), newKeywords.stream()).distinct().collect(Collectors.toList());
         }
 
-        getTableModel().setHeaders(tableColumnKeywords);
+        if (!hasColumnKeywordsBeenEdited) {
+            getTableModel().setColumnKeywords(tableColumnKeywords);
+        }
         getTableModel().setResults(results);
     }
 
@@ -173,6 +206,7 @@ public class TablePanel extends javax.swing.JPanel {
     private javax.swing.JTable jResultSetTable;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JButton jButtonShowTableEditor;
     // End of variables declaration//GEN-END:variables
 
 }

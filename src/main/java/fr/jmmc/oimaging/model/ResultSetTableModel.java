@@ -28,7 +28,7 @@ public class ResultSetTableModel extends DefaultTableModel {
         super();
     }
     
-    public void setHeaders(List<ColumnKeyword> columnKeywords) {
+    public void setColumnKeywords(List<ColumnKeyword> columnKeywords) {
         this.columnKeywords = columnKeywords;
         fireTableStructureChanged();
     }
@@ -119,8 +119,8 @@ public class ResultSetTableModel extends DefaultTableModel {
         }
     }
 
-    public List<String> getHeaders() {
-        return columnKeywords.stream().map(ColumnKeyword::getValue).collect(Collectors.toList());
+    public List<ColumnKeyword> getHeaders() {
+        return columnKeywords;
     }
 
     // use enum or just create ColumnProvider(name)
